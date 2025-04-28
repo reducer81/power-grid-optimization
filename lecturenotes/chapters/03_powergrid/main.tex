@@ -1,0 +1,86 @@
+\documentclass[colorlinks]{article}
+
+%% \usepackage[utf8]{inputenc} % Required for inputting international characters
+%\usepackage{graphicx}
+%\usepackage{amssymb, amsthm}
+%%\usepackage[framemethod=default]{mdframed}
+%%\usepackage{changepage}
+%%\usepackage{caption, subcaption}
+%\usepackage{tikz}
+%\usepackage{tkz-berge}
+%\usetikzlibrary{
+%  graphs, graphs.standard, graphdrawing, positioning,
+%  shadows.blur, shapes.geometric, arrows.meta,
+%  math, calc, intersections, decorations.shapes, quotes
+%}
+%\usegdlibrary{circular}
+
+\usepackage{hyperref}
+
+
+\usepackage{amsmath, amsfonts, amssymb, amsthm} % For math equations, theorems, symbols, etc
+\usepackage{import}
+\usepackage{caption, subcaption}
+\usepackage{tikz}
+\usepackage{tkz-berge}
+\usetikzlibrary{
+  graphs, graphs.standard, graphdrawing, positioning,
+  shadows.blur, shapes.geometric, arrows.meta,
+  math, calc, intersections, decorations.shapes, quotes
+}
+
+%\DeclareMathOperator*{\argmin}{arg\,min}
+\usegdlibrary{circular}
+%\makeatletter
+%\renewcommand{\maketitle}{%
+%  % Fill PDF information.
+%  \hypersetup{%
+%    pdftitle    = {\@title},%
+%    pdfauthor   = {\@shortauthor},%
+%    pdfkeywords = {\@keywords}
+%  }
+
+%  % Headers and footers.
+%  \ifx\@shortauthor\empty%
+%    \ifx\@shorttitle\empty%
+%    \else
+%      \ihead{\@shorttitle}
+%    \fi
+%  \else
+%    \ifx\@shorttitle\empty%
+%      \ihead{\@shortauthor}
+%    \else
+%      \ihead{\@shortauthor:~\@shorttitle}
+%    \fi
+%  \fi
+%
+%  \KOMAoptions{headsepline = true, footsepline = true, plainfootsepline = true}
+%  \ModifyLayer[addvoffset=-.6ex]{scrheadings.foot.above.line}
+%  \ModifyLayer[addvoffset=-.6ex]{plain.scrheadings.foot.above.line}
+%
+%  % Footline date.
+%  \ifx\@shortdate\empty%
+%    \ofoot*{\small \ISOToday}
+%  \else
+%    \ofoot*{\small \@shortdate}
+%  \fi
+%  \oldmaketitle%
+%  % \vspace{-2\baselineskip}
+%}
+%\makeatother
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{example}{Example}[section]
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\begin{document}
+%
+\title{Power Grid}
+\author{S. Grundel}
+\maketitle
+\input{content}
+%
+\end{document}

@@ -1,0 +1,147 @@
+\section{The Power Flow Problem}
+Roughly speaking, by solving “the power flow problem”, we mean finding the complex voltages for all the buses of the power system when the complex power injections are given such that the power injections and the voltages satisfy the power flow equations. However, there are several considerations:
+\subsubsection*{Existence of solutions}
+In general we cannot specify all the complex power injections independently, as can be seen from the following two examples:
+\begin{itemize}
+\item  Consider the case where all the transmission lines are lossless (i.e. $Y$ is a diagonal matrix). Then by the conservation of power, we get that
+\[\sum P_i=0,\]
+which puts a constraint on the power injection vector.
+
+\item  Consider the case where the power system consists of two buses connected by a short transmission line with admittance $ g + ib$. Then the admittance matrix is
+\[\begin{bmatrix} g+ib & -g-ib\\-g-ib & g+ib\end{bmatrix}\]
+and the power flow equations are
+\begin{align}
+P_1 &= g|V_1|^2 + |V_1||V_2|(-g \cos{\theta_2} + b \sin{\theta_2}),\\ P_2 &= g|V_2|^2 + |V_1||V_2|(-g \cos{\theta_2} -b \sin{\theta_2}),\\ 
+Q_1 &= -b|V_1|^2 + |V_1||V_2|(g \sin{\theta_2} + b \cos{\theta_2}),\\ Q_2 &= -b|V_2|^2 + |V_1||V_2|(-g \sin{\theta_2} + b \cos{\theta_2}),
+\end{align}
+and so
+\begin{align}
+P_1 + P_2 = g(|V_1|^2 + |V_2|^2 -2|V_1||V_2| \cos{\theta_2}) = g|V_1 -V_2|^2,\\
+Q_1 + Q_2 = -b(|V_1|^2 + |V_2|^2 - 2b|V_1||V_2| \cos{\theta_2}) = -b|V_1 -V_2|^2,
+\end{align} (these two equalities can also be obtained by the conservation of complex
+power), which imply that
+\[b(P_1 +P_2)+g(Q_1 +Q_2)=0.\]
+These two examples suggest that there is a constraint imposed on the power injections by the need to balance complex power in steady-state operation.
+\end{itemize}
+\subsubsection*{Uniqueness of solution}
+The solution in general is not unique: If the complex voltages $V\in\mathbb{C}^N$ and the complex power injections $S\in\mathbb{C}^N$ satisfy the power flow equations, then $e^{j\theta_0} V$ and $S$ will also satisfy the power flow equations for any $\theta_0\in\mathbb{R}$. This means that we need to fix the voltage phase angle at a certain bus.
+
+
+\begin{remark}For transmission networks, it is reasonable to model loads as constant power loads, meaning that the complex power consumed by the loads are not affected by the voltages imposed on the loads. This is partly related to the fact that in transmission networks, loads are usually connected to the network via substations, in which there are voltage regulators (transformers with variable voltage gains) to keep the voltages on the secondary side roughly constant regardless of the voltages on the primary side.
+On the other hand, for buses with bulk generators connected it is more reasonable to specify their real power injections and voltage magnitudes (this is due
+to how the bulk generators are operated, which we will not talk about in detail in this course); the reactive power injections will then be determined after the complex voltages are solved.
+\end{remark}
+
+There are three types of buses:
+\begin{enumerate}
+\item  A slack bus or swing bus, at which the voltage phase angle is zero and the
+voltage magnitude is given. In other words, $V_1 = |V_1|$ is specified. The slack bus is placed at a generator bus and is usually bus 1.
+\item PV buses or voltage-controlled buses, at which the real power injections and the voltage magnitudes are specified. These buses are usually buses with bulk generators connected.
+Suppose bus $i$ is a PV bus connected to generators injecting real power $P_{G_i}$ and loads consuming real power $P_{D_i}$, then the net real power injection at bus i is given by $P_i = P_{G_i} - P_{D_i}$.
+Without loss of generality we assume that the PV buses are bus 2 to bus M.
+\item PQ buses or load buses, at which the real and reactive power injections are specified. These buses are usually the load buses.
+Suppose bus $i$ is a PQ bus connected to loads consuming real power $P_{D_i}$ and reactive power $Q_{D_i}$, then the net real and reactive complex power injections at bus $i$ are given by $P_i = -P_{D_i}$, $Q_i = -Q_{D_i}$.
+\end{enumerate}
+
+
+The power flow problem is to find the following $2N - M - 1$ real quantities 
+\[\theta_2,...,\theta_M,|V_M+1|,\theta_{M+1},|V_{M+2}|,\theta_{M+2},...,|V_N|,\theta_N\]
+
+from the following $2N - M - 1$ power flow equations
+\begin{align}
+P_i&=\sum_{k=1}^N |V_i||V_k|(G_{ik}\cos{(\theta_i-\theta_k)}+B_{ij}\sin{(\theta_i-\theta_k)}, i=2,\dots,N\\
+Q_i &=\sum_{k=1}^N|V_i||V_k|(G_{ik}\sin{(\theta_i-\theta_k)}-B_{ik}\cos{(\theta_i-\theta_k)}), i=M+1,\dots,N. 
+\end{align}
+
+given the following specified quantities
+\[|V_1|,\theta_1 = 0,P_2,|V_2|,...,P_M,|V_M|,P_{M+1},Q_{M+1},...P_N,Q_N.\]
+
+
+ After the $2N - M - 1$ unknown quantities are found, the complex power injection at the slack bus and the reactive power injections at the PV buses are calculated by
+\begin{align}
+P_1 &=\sum_{k=1}^N |V_1||V_k|(G_{1k}\cos{\theta_k} -B_{1k}\sin{\theta_k}),\\
+Q_i &=\sum_{k=1}^N|V_i| |V_k| (G_{ik}\sin{(\theta_i-\theta_k)}-B_{ik}\cos{(\theta_i-\theta_k)}), i=1,\dots,M.
+\end{align}
+The real and reactive power generated by generators connected to the slack bus are $P_{G_1} = P_1 +P_{D_1}$ and $Q_{G_1} = Q_1 +Q_{D_1}$, where $P_{D_1}$ and $Q_{D_1}$ are the real and reactive power consumption of the load connected to the slack bus. For PV bus $i$, the reactive power generated by generators connected to it is $Q_{G_i} = Q_i + Q_{D_i}$, where $Q_{D_i}$ is the reactive power consumption of the load connected to bus $i$. Moreover, after all the voltages are found, we can then calculate the complex powers and currents that flow through the transmission links, to check if operational constraints (e.g. thermal limits) are satisfied.
+
+
+\begin{remark}The slack bus plays two roles: (1) to serve as a reference of the voltage phase angles, (2) to achieve power balance of the whole system by not specifying its power injections. Then, since the complex power injection of the slack bus is not predetermined, we will need generators connected to the slack bus so that its complex power injection is adjustable. For a PV bus $i$, usually the reactive power produced by the generators $Q_{G_i}$ must be constrained within a certain range such as $Q_{min} \leq Q_{G_i} \leq Q_{max}$. After solving
+the power flow problem and evaluating the resulting reactive power generation $Q_{G_i}$, if it exceeds one of the limits then $Q_{G_i}$ will be set to that limit and bus $i$ will be re-classified as a PQ bus with $|V_i|$ to be determined. The updated power flow equations are then resolved for the unknown quantities.
+
+\end{remark}
+The core of solving the power flow problem is solving the $2N - M - 1$ nonlinear power flow equations. These nonlinear equations may have no, one unique, or multiple solutions. The following subsection introduces numerical methods for solving the nonlinear power flow equations.
+
+
+\subsection{Numerical Solutions}
+Solution Methods that can be used to solve the nonlinear system of equation called the power flow equations are methods that do not require the computation of the Jacobian matrix of the nonlinearity (Jacobi's method and Gauss-Seidel’s method), and methods that require the computation of the Jacobian matrix  (Newton’s method and variants)
+\subsubsection*{Gauss-Seidel}
+This is one of many techniques for solving the nonlinear power flow problem. 
+It got the name from an iteration to solve a linear system of the form 
+$$
+Ax=b$$
+
+The idea for the Gauss-Seidel iteration for this linear system is by splitting $A$ into three matrices $L$ the matrix with the entries of $A$ below or left of the diagonal and zero otherwise, $D$ the diagonal of $A$ and $R$ the entries right of the diagonal and zero otherwise such that
+$$
+A=L+D+R$$
+
+from that we iterate by considering the following equation
+
+$$
+(L+D)x=-Rx+b
+$$
+giving the iteration 
+$$
+x^{k+1}=(L+D)^{-1}(-Rx^k+b)
+$$
+The theory in numerical linear algebra on this iteration scheme and the convergence criteria can be found anywhere in numerical linear algebra textbooks. 
+
+
+The question now is how can we use this on a nonlinera system of equations. The power flow equation can be written in complex notation as
+\[S_i=P_i+iQ_i=E_i\sum Y^*_{ij}E_je^{i(\theta_i-\theta_j)}=V_i\sum Y^*_{ij}V^*_j\]
+
+where $Y_{ij}=G_{ij}+iB_{ij}$
+
+which can be rewritten as
+
+$$
+\frac{S_i}{V_i}=\sum Y_{ij}^*V_j^*
+$$
+
+By first taking the complex conjugate this can be interpreted as a linear equation with a right hand side still depending on $V$ meaning we have
+
+$$YV=b(V)$$
+where $Y$ is the matrix with entries $Y_{ij}$ and $V$ is the vector with entries $V_i$ and $b(V)_i=S^*_i/V^*_i$
+
+Straightforward Gauss-Seidel on this gives us the following iteration
+\begin{align}
+V_1^{k+1}&=Y_{11}^{-1}(-\sum_{i=2}^{n}Y_{1i}V^k_i+b(V^k)_1)\\
+&=Y_{11}^{-1}(-\sum_{i=2}^{n}Y_{1i}V^k_i+\frac{S_1^*}{V_1^*})\\
+\end{align}
+
+One can then further see that we get the next entries of the vector $V^{k+1}$ by the following 
+
+$$
+V_j^{k+1}=Y_{jj}^{-1}(-\sum_{i=1}^{j-1} Y_{ji}V_i^{k+1}-\sum_{i=j+1}^n Y_{ji}V_i^{k+1}+\frac{S_j^*}{V_j^*})
+$$
+
+It should be pointed out that this solution technique, while straightforward to use and easy to understand, has a tendency to use a lot of computation, particularly for large problems. It is also quite capable of converging to incorrect solutions (that is a problem with nonlinear systems). As with other iterative techniques, it is often difficult to tell when the correct solution has been reached. Despite these shortcomings, Gauss–Seidel can be used to get a good feel for power flow problems without excessive numerical analysis baggage.
+
+
+Suppose we have an initial estimate (ok: guess) for network voltages. This expressions gives a better estimate of $V_i$ than we started with. The solution to the set of nonlinear equations consists of carrying out this expression, repeatedly, for all of the buses of the network.
+
+
+For generator buses, usually the real power and terminal voltage magnitude are specified. At each time step it is necessary to come out with a terminal voltage of specified magnitude: voltage phase angle and reactive power $Q$ are the unknowns. One way of handling this situation is to:
+\begin{enumerate}
+
+\item Generate an estimate for reactive power Q, then
+\item Use the equations to generate an estimate for terminal voltage, and finally,
+\item Holding voltage phase angle constant, adjust magnitude to the constraint.
+
+\end{enumerate}
+At any point in the iteration, reactive power is:
+\[Q_i=\textsl{im}{(V_i\sum Y^*_{ij}V_j^*)}\]
+
+It should be noted that there are other ways of doing this calculation. Generally they are more work to set up but often converge more quickly. Newton’s method and variations are good examples.
+
+For buses loaded by constant impedance, it is sufficient to lump the load impedance into the network. That is, the load admittance goes directly in parallel with the driving point admittance at the node in question.
+These three bus constraint types, generator, load and constant impedance are sufficient for handling most problems of practical importance.

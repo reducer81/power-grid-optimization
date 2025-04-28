@@ -1,0 +1,84 @@
+\section{Dynamic Model for Transient Stability}
+The power flow is used to determine a quasi steady-state operating condition for a power system. Dynamics simulations are used to determine whether following a contingency the power system returns to a steady-state operating point or not. If returning to a steady state is not garantueed, the system can  become instable. The ideal situation is that the system starts in a steady-state, and hopefully returns to a new steady-state value.
+In order to operate as an interconnected system, all of the generators (and other synchronous machines) must remain in synchronism, with one another. Synchronism requires that (for two pole machines) the rotors turn at the same speed. Loss of synchronism results in a condition in which no net power can be transferred between the machines. A system is said to be transiently unstable if following a disturbance one or more of the generators lose synchronism.
+In order to study the transient response of a power system we need to develop models for the generator valid during the transient time frame of several seconds following a system disturbance.
+We need to develop both electrical and mechanical models for the generators.
+The simplest generator model, known as the classical model, treats the generator as a voltage source behind the direct-axis transient reactance; the voltage magnitude is fixed, but its angle changes according to the mechanical dynamics 
+resulting in the following type of ordinary differential equation as described by Machowski et al.
+(2008)
+\[m_i\ddot{\delta_i}+d_i\dot{\delta}_i=P_i^m-\sum k_{ij}\sin{\delta_i-\delta_j}\]
+where $\delta_i$ is the phase angle of bus $i$, $m_i$ and $d_i$ are the inertia and damping coefficient
+respectively, $p_i^m$
+is the power load at bus $i$ and $k_{ij} = |V_i||V_j|B_{ij}$, where $V_i$ is the voltage of bus $i$, and $B_{ij}$ is the susceptance of the
+line $(i, j)$. By convention
+we will define injected power to have a positive sign, and power load to have a negative
+sign. 
+
+In vector notation the system can be written as
+
+\[M\ddot{\delta}+D\dot{\delta}=f(\delta)\]
+and in first order form 
+
+\[\begin{bmatrix} \dot{\omega}\\ \dot{\delta}\end{bmatrix}=
+\begin{bmatrix}-M^{-1}D & 0 \\ I & 0\end{bmatrix}\begin{bmatrix}\omega \\ \delta\end{bmatrix}+\begin{bmatrix}f(\delta)\\0\end{bmatrix}\]
+
+%Lets go back to the model of a bus by 
+%
+%\[m_i\ddot{\delta_i}+d_i\dot{\delta}_i=P_i^m-\sum k_{ij}\sin{\delta_i-\delta_j}\]
+
+We will assume that generator buses are modeled like this and possible other nodes as well, but we will also introduce nodes which satisfy a first order equation leading to the following model
+
+\begin{align}
+m_i\ddot{\delta_i}+d_i\dot{\delta}_i&=P_i^m-\sum k_{ij}\sin{\delta_i-\delta_j}\quad i\in V_p\\
+d_i\dot{\delta}_i&=P_i^m-\sum k_{ij}\sin{\delta_i-\delta_j}\quad i\in      V_c
+\end{align}
+
+
+This system of equation can be linearized
+\begin{align*}
+m_i\ddot{\delta_i}+d_i\dot{\delta}_i&=P_i^m-\sum k_{ij}
+\cos{(\delta^*_i-\delta^*_j)}(\delta_i-\delta_j)\quad i\in V_p\\
+d_i\dot{\delta}_i&=P_i^m-\sum k_{ij}\cos{(\delta^*_i-\delta^*_j)}(\delta_i-\delta_j)\quad i\in V_c
+\end{align*}
+
+and then the right hand side of this system is equal to $L\delta$ with $L$ being
+
+\[L=\left\{\begin{matrix}-k_{ij}\cos{(\delta_i^*-
+\delta^*_j)} &\mbox{if } i\neq j\\
+\sum_{i\neq ji}k_{ij}\cos{(\delta_i^*-
+\delta^*_j)}&\mbox{ else}\end{matrix}\right.\]
+which is the Laplacian matrix for small perturbations around an operating point.
+The linearised power system model is then given
+as:
+
+\[M\ddot{\delta}+D\dot{\delta} =P^m-L\delta\]
+
+The topological properties of the network are encoded in the Laplacian matrix $L$.
+$M$ and $D$ are diagonal matrices which describe the machine parameters at each node
+in the system. Typically M is a singular diagonal
+matrix. As we are mostly interested in the influence of the topology and
+machine parameters, we will focus on the free response system by setting $P^m = 0$.
+
+The solution to the system $M\ddot{\delta}+D\dot{\delta}+L\delta=0$ is given by 
+
+\[\delta(t)=\sum_{k=1}^{2N} \gamma_k\phi_k\exp{\lambda_k t}\]
+
+where the $\gamma$ come from the initial value and $\lambda$ and $\phi$ are solutions of the quadratic eigenvalue problem:
+
+\[(\lambda^2M+\lambda D+L)\phi=0\]
+\subsection*{Quadratic Eigenvalue Problem}
+The quadratic eigenvalue problem is directly related to the eigenvalue problem,
+with the differences being the additional matrices $M$ and $D$ and supplementary
+quadratic and linear eigenvalue terms. Even when the matrices are of size $n$ by $n$, the
+quadratic nature results in $2n$ eigenpairs. This can be understood as a result of the
+positive and negative solutions of a square root. From a theoretical point of view,
+the following properties can be found in a QEP:
+\begin{enumerate}
+\item  $M$ is non singular - $2n$ finite eigenvalues
+\item $M$, $D$, $L$ are real matrices - eigenvalues are either real or come in complex conjugate
+pairs
+\item $M$ hermitian and positive definite, $D$ and $L$ positive semi definite - The real
+parts of the eigenvalues are non positive
+\end{enumerate}
+When $M$ is singular, there will be infinite eigenvalues. As $M$ is a diagonal matrix
+with zero entries for the load nodes, there are infinite eigenvalues. 
