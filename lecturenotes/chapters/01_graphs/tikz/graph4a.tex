@@ -1,0 +1,16 @@
+\begin{tikzpicture}[baseline, nodestyle/.style={node font=\tiny, shape=circle, fill=yellow}]
+  % put nodes at the corners of a triangle
+  \node[regular polygon,regular polygon sides=3,minimum size=5cm] (p) {};
+  % nodes at corners
+  \foreach\x/\y in {1/2,2/4,3/3}{\node[nodestyle] (p\y) at (p.corner \x){\y};}
+  % node at centroid
+  \node[nodestyle] (p1) at (p.center) {1};
+  % draw edges
+  \graph[edges=blue]{
+    \foreach\x in {1,2,3}{
+      \foreach\y in {\x,...,4}{
+        (p\x) -- (p\y);
+      }
+    }
+  };
+\end{tikzpicture}

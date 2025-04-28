@@ -1,0 +1,28 @@
+\begin{tikzpicture}[
+  nodestyle/.style={
+    draw,
+    shape=circle,
+    fill=white,
+    blur shadow={shadow blur steps=5}
+  },
+  edgename/.style={
+    fill=white,
+    shape=circle,
+    node font=\tiny
+  },
+  >={Stealth[round]}
+]
+  % put nodes at the corners of a pentagon
+  \node[regular polygon,regular polygon sides=5,minimum size=2.5cm, shape border rotate=20] (p) {};
+  \foreach\x/\y in {1/1,2/4,3/3,4/5,5/2}{
+    % name nodes accordingly
+    \node[nodestyle] (p\y) at (p.corner \x){\y};
+  }
+  % draw edges
+  \draw[semithick,black,dashed] (p1) -- (p2);
+  \draw[semithick,black,dashed] (p1) -- (p3);
+  \draw[semithick,red,->] (p1) -- (p4) node [edgename,midway] {2};
+  \draw[semithick,blue,<-] (p1) -- (p5) node [edgename,very near end] {1};
+  \draw[semithick,green!60!black,->] (p2) -- (p3) node [edgename,near end] {4};
+  \draw[semithick,magenta,<-] (p2) -- (p4) node [edgename,midway] {3};
+\end{tikzpicture}

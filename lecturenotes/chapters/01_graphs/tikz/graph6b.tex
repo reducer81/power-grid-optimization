@@ -1,0 +1,11 @@
+% Modified from https://tex.stackexchange.com/a/625537
+\begin{tikzpicture}[
+  every node/.style={node font=\tiny, shape=circle, fill=yellow},
+  every edge/.style={draw=blue}
+]
+  \graph[math nodes, clockwise, edge=red] {
+      subgraph I_n [V={6,9,7,10,8}, nodes={fill=green}] -- [edges=blue]
+      subgraph C_n [V={1,2,3,4,5},radius=1.25cm, edge=blue];
+      {[cycle] 6,7,8,9,10}
+    };
+\end{tikzpicture}

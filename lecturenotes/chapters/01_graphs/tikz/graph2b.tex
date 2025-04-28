@@ -1,0 +1,8 @@
+\tikzset{every loop/.style={in=60,out=120}}
+\begin{tikzpicture}[>={Stealth[round]}, semithick]
+  \graph [%
+    simple necklace layout, nodes={ draw, circle, node sep=2cm}
+  ] {%
+    1 -> [orient=0]  2 -> 3 -> 4 -> 1 -> [loop left] 1 %
+  };
+\end{tikzpicture}

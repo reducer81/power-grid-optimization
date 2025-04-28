@@ -1,0 +1,61 @@
+\pgfdeclarelayer{background layer}
+\pgfdeclarelayer{foreground layer}
+\pgfsetlayers{background layer,main,foreground layer}
+\begin{tikzpicture}[
+  nodestyle/.style={%
+    draw, shape=circle, fill=white,
+    node font = \small,
+    blur shadow={shadow blur steps=5}}
+]
+
+  \node [nodestyle] (1) at (0,0) {1};
+  \node [nodestyle] (2) at ($(1) + (20:2cm)$) {2};
+  \node [nodestyle] (3) at ($(1) + (-60:1.5cm)$) {3};
+  \node [nodestyle] (4) at ($(3) + (1.5cm, 0)$) {4};
+  \node [nodestyle,fill=red!30] (5) at ($(2) + (-30:1.5cm)$) {5};
+  \node [nodestyle] (6) at ($(5) + (30:2cm)$) {6};
+  \node [nodestyle] (7) at ($(6) + (-45:1.5cm)$) {7};
+  \node [nodestyle] (8) at ($(5) + (-45:1.5cm)$) {8};
+  \node [nodestyle] (9) at ($(8) + (-10:1cm)$) {9};
+
+  \graph[edge quotes={auto}] {
+    (1) -- {(2),(3)};
+    (2) -- (4);
+    (2) -- [red] (5);
+    (3) -- (4);
+    (4) -- [red] (5);
+    (5) -- {(6),(8)};
+    (6) -- {(7),(9)};
+    (7) -- (9);
+    (8) -- (9);
+  };
+
+  \coordinate[above=2mm] (labelpos1) at ($(2)!0.6!(5)$);
+  \coordinate[below=3.7mm] (labelpos2) at ($(4)!0.6!(5)$);
+
+  \node (label1) at (labelpos1) {$e_1$};
+  \node (label2) at (labelpos2) {$e_2$};
+
+  \coordinate (arrow_tip1) at (5.north);
+  % \coordinate (arrow_tip2) at ();
+  \draw[{Stealth[round]}-] (arrow_tip1) -- ++ (80:1cm) node [above] {Cut Vertex};
+  % \draw[{Stealth[round]}-] (arrow_tip1) -- ++ (-80:1cm) node [below] {Articulation Point};
+
+  \begin{pgfonlayer}{background layer}
+    \draw[dashed] plot [smooth cycle] coordinates{
+    (2.east)
+    (4.north east)
+    ($(4.south east)+(-40:0.5cm)$)
+    ($(4.south east)+(10:1cm)$)
+    (5.south west)
+    (5.north west)
+    ($(5.north)+(100:5mm)$)
+    ($(2.east)+(60:5mm)$)
+    };
+  \end{pgfonlayer}
+
+  \draw [{Stealth[round]}-]
+  ($(4.south east)+(-20:7mm)$)
+  -- ++ (-10:5mm) node [right]{Edge Cut};
+\end{tikzpicture}
+

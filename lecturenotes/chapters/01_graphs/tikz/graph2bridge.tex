@@ -1,0 +1,46 @@
+\def\grlen{2.7}
+\begin{tikzpicture}[%
+  nodestyle/.style={
+    draw, shape=circle, fill=white,
+    blur shadow={shadow blur steps=5}
+  }
+]
+  \node [nodestyle] (A) at (0,0) {A};
+  \node [nodestyle] (B) at (0,-\grlen) {B};
+  \node [nodestyle] (C) at (0,\grlen) {C};
+  \node [nodestyle] (D) at (\grlen,0) {D};
+
+  \graph[
+    multi,
+    edges={semithick}
+  ]{
+    {(C),(A),(B)} -- (D);
+    (C) --[bend left] (A);
+    (C) --[bend right] (A);
+    (A) --[bend left] (B) ;
+    (A) --[bend right] (B);
+  };
+
+  \coordinate (labelpos) at ($(C.north east)+(30:2cm)$);
+  \draw[dashed,{Stealth[round,length=3mm]}-] plot [smooth] coordinates{
+    (A.north west)
+    ($(A.north west)+(140:1cm)$)
+    ($(C.north west)+(140:1cm)$)
+    (labelpos)
+  };
+  \node[anchor=west] at (labelpos) {Islands};
+  \draw[dashed,{Stealth[round,length=3mm]}-]
+    (C.north east) -- ($(labelpos)+(0,-1mm)$);
+  \draw[dashed,{Stealth[round,length=3mm]}-]
+    (D.north) -- ($(labelpos) + (2mm,-1mm)$);
+  \draw[dashed, {Stealth[round,length=3mm]}-] plot [smooth] coordinates{
+    (B.east)
+    ($(B.east)+(0:15mm)$)
+    ($(D.south east)+(-45:8mm)$)
+    ($(labelpos)+(7mm,-2mm)$)
+  };
+
+  \coordinate (labelpos2) at ($(A.south west) + (-140:2cm)$);
+  \draw[dashed,-{Stealth[round, length=3mm]}] (labelpos2) -- ++ (0:1.3cm);
+  \node[anchor=east] at (labelpos2) {Bridge};
+\end{tikzpicture}

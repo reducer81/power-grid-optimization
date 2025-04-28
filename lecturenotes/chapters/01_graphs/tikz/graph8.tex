@@ -1,0 +1,20 @@
+\begin{tikzpicture}[
+  every node/.style={node font=\tiny, shape=circle, fill=yellow},
+  level/.style={draw=blue,semithick,sibling distance=25mm}
+]
+  \node {1}
+  child {node {5}
+  child {node {8}
+    child {node {2}
+      child {node {6}
+        child {node {4}}
+      }
+      child {node {10}
+        child {node {7}}
+        child {node {9}}
+      }
+    }
+    child {node {3}}
+  }
+  };
+\end{tikzpicture}

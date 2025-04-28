@@ -1,0 +1,236 @@
+\section{Spectral graph theory}
+%
+\subsection{Representing graphs as matrices}
+
+Instead of storing a graph as a set of vertices and a set of edges we can represent a graph as a matrix. Let \(G\) be a graph with \(n\) nodes.
+We denote the vertices by \(v_{1},\ldots,v_{n}\).
+
+\begin{definition}
+The adjacency matrix \(A=A\left(G\right) =\left[a_{ij}\right]\) defined to be the \(n\times n\) matrix such that \(a_{ij}=1\) if \(v_{i}v_{j}\in E\left(G\right)\).
+This matrix will be symmetric for an undirected graph.
+\end{definition}
+
+We can easily consider the generalization to directed graphs and multigraphs.
+
+Note that two isomorphic graphs may have different adjacency matrices.
+However, they are related by permutation matrices.
+
+\begin{definition}
+A permutation matrix is a matrix gotten from the identity by permuting the columns (i.e., switching some of the columns).
+\end{definition}
+
+\begin{lemma}
+The graphs \(G\) and \(G^{\prime}\) are isomorphic if and only if their adjacency matrices satisfies the following relation
+\[
+A=P^{T}A^{\prime}P
+\]
+for some permutation matrix \(P\).
+\end{lemma}
+
+\begin{proof}[Proof (sketch)]
+Given isomorphic graphs, the isomorphism gives a permutation of the vertices, which leads to a permutation matrix.
+Similarly, the permutation matrix gives an isomorphism.
+\end{proof}
+
+Now we see that the adjacency matrix can be used to count \(uv\)-walks.
+
+\begin{theorem}
+Let \(A\) be the adjacency matrix of a graph \(G\), where \(V\left(  G\right)=\left\{v_{1},v_{2},\ldots,v_{n}\right\}\).
+Then the \(\left(i,j\right)\) entry of \(A^{k}\), where \(k\geq1\), is the number of different \(v_{i}v_{j}\)-walks of length \(k\) in \(G\).
+\end{theorem}
+
+\begin{proof}
+We induct on \(k\).
+Certainly this is true for \(k=1\).
+Now suppose \(A^{k}=\left(a_{ij}^{\left(k\right)}\right)\) gives the number of \(v_{i}v_{j}\)-walks of length \(k\).
+We can consider the entries of \(A^{k+1}=A^{k}A\).
+We have
+\[
+a_{ij}^{\left(n+1\right)}=\sum_{k=1}^{p}a_{ik}^{\left(n\right)} a_{kj}.
+\]
+This is the sum of all walks of length \(n\) between \(v_{i}\) and \(v_{k}\) followed by a walk from \(v_{k}\) to \(v_{j}\) of length \(1\).
+All walks of length \(n+1\) are generated in this way, and so the theorem is proven.
+\end{proof}
+
+Another widely used matrix to represent a graph is the incidence matrix
+
+\begin{definition}
+The unoriented incidence matrix (or simply incidence matrix) of an undirected graph is a $n\times  m $ matrix $B$, where $n$ and $m$ are the numbers of vertices and edges respectively, such that
+%\begin{equation}
+%B_{ij}=\left\{ \begin{matrix}
+%1 & \mbox{if vertex } v_i \mbox{ is incident with edge } e_j\\
+%0 &  \mbox{ otherwise} \end{matrix}\right.}
+%\end{equation}
+
+$$ B_{ij}=\left\{{\begin{array}{rl}\,1&{\text{if vertex }}v_{i}{\text{ is incident with edge }}e_{j},\\0&{\text{otherwise.}}\end{array}}\right. $$
+\end{definition}
+
+\subsection{Graph Laplacian}
+
+Recall that an eigenvalue of a matrix \(M\) is a number \(\lambda\) such that there is a vector \(v\) (called the corresponding eigenvector) such that
+\[
+Mv=\lambda v.
+\]
+It turns out that symmetric \(n\times n\) matrices have \(n\) eigenvalues.
+Since adjacency matrices of two isomorphic graphs are related by permutation matrices as above, and so the set of eigenvalues of \(A\) is an invariant of a graph.
+
+We will actually use the Laplacian matrix instead of the adjacency matrix.
+The Laplacian matrix is defined to be
+\[
+L=A-D,
+\]
+where, \(D\) is the diagonal matrix whose entries are the degrees of the vertices (called the degree matrix).
+The Laplacian matrix is also symmetric, and thus it has a complete set of eigenvalues.
+The set of these eigenvalues is called the spectrum of the Laplacian.
+Notice the following.
+
+\begin{theorem}
+Let \(G\) be a finite graph.
+The eigenvalues of the matrix \(L\) are all nonpositive.
+Moreover, the constant vector \(\vec{1}=\left(  1,1,1,\ldots,1\right)\) is an eigenvector with eigenvalue zero.
+\end{theorem}
+
+\begin{proof}
+It is clear that \(\vec{1}\) is an eigenvector with eigenvalue \(0\) since the sum of the entries in each row must be zero.
+Now, notice that we can write,
+%
+\begin{align*}
+v^{T}Lv  &  =\sum v_{i}{\left(  Lv\right)}_{i}\\
+&  =\sum_{i}v_{i}\sum_{j}L_{ij}v_{j}\\
+&  =\sum_{v_{i}v_{j}\in E}v_{i}\left(  v_{j}-v_{i}\right) \\
+&  =\frac{1}{2}\left[  \sum_{v_{i}v_{j}\in E}v_{i}\left(  v_{j}-v_{i}\right)
++\sum_{v_{i}v_{j}\in E}v_{j}\left(  v_{i}-v_{j}\right)  \right] \\
+&  =-\frac{1}{2}\sum_{v_{i}v_{j}\in E}{\left(  v_{i}-v_{j}\right)}^{2}\leq0.
+\end{align*}
+%
+(The sums over \(i\) are over all vertices, but the sums over \(v_{i}v_{j}\in E\) is the sum over the edges.)
+Now note that if \(v\) is an eigenvector of \(L\) with eigenvalue \(\lambda\), then \(Lv=\lambda v\), and,
+\[
+v^{T}Lv=\lambda v^{T}v=\lambda\sum_{i}v_{i}^{2}.
+\]
+Thus we have that,
+\[
+\lambda=\frac{-\frac{1}{2}\sum_{v_{i}v_{j}\in E}\left(v_{i}-v_{j}\right)
+^{2}}{\sum_{i}v_{i}^{2}}\leq0.
+\]
+
+\end{proof}
+
+\begin{definition}
+The eigenvalues of \(-L\) can be arranged \(0=\lambda_{0}\leq\lambda_{1}\leq\lambda_{2}\leq\cdots\leq\lambda_{n-1}\), where \(n\) is the order of the graph, meaning the number of vertices in the graph. 
+The collection \(\left(  \lambda_{0},\lambda_{1},\ldots,\lambda_{n-1}\right)\) is called the \emph{spectrum }of the Laplacian.
+\end{definition}
+
+\begin{remark}
+Sometimes the Laplacian is taken to be \(D^{-1/2}LD^{-1/2}\).
+If there are no isolated vertices, these are essentially equivalent.
+\end{remark}
+
+\begin{remark}
+Note that the Laplacian matrix, much like the adjacency matrix, depends on the ordering of the vertices and must be considered up to conjugation by permutation matrices.
+Since eigenvalues are independent of conjugation by permutation matrices, the spectrum is an isomorphism invariant of a graph.
+\end{remark}
+
+We will be able to use the eigenvalues to determine some geometric properties of a graph. Recall that \(\lambda_{0}=0\), which means that the matrix \(L\) is singular and its determinant is zero.
+Recall the definition of the adjugate of a matrix.
+
+\begin{definition}
+If \(M\) is a matrix, the adjugate is the matrix \(M^{\dag}=\left[M_{ij}^{\dag}\right]\) where \(M_{ij}^{\dag}\) is equal to \({\left(-1\right)}^{i+j}\det\left(\hat{M}_{ij}\right)\), where \(\hat{M}_{ij}\) is the matrix with the \(i\)-th row and \(j\)-th column removed.
+\end{definition}
+
+The adjugate has the property that
+\[
+M{\left(M^{\dag}\right)}^{T}=\left(\det M\right)  I,
+\]
+where \(I\) is the identity matrix.
+Applying this to \(L\) (which is symmetric) gives that
+\[
+LL^{\dag}=0.
+\]
+Now, the \(n\times n\) matrix \(L\) has rank less than \(n\).
+If it is less than or equal to \(n-2\), then all determinants of \(\left(n-1\right)\times\left(n-1\right)\) submatrices are zero, and hence \(L^{\dag}=0\).
+If \(L\) has rank \(n-1\), then it has only one zero eigenvalue, which must be \({\left(1,1,\ldots,1\right)}^{T}\).
+Since \(LL^{\dag}=0\), all columns of \(L^{\dag}\) must be a multiple of \({\left(1,1,\ldots,1\right)}^{T}\).
+But \(L\) is symmetric, so that means that \(L^{\dag}\) must be a multiple of the matrix of all ones. This means that each entry in \(L^{\dag}\) are the same, which motivates the following definition.
+
+\begin{definition}
+We define \(t\left(G\right)\) by
+\[
+t\left(G\right) ={\left(-1\right)}^{i+j}\det\left(-\hat{L}_{ij}\right)
+\]
+for any \(i\) and \(j\) (it does not matter since all are the same).
+\end{definition}
+
+\begin{remark}
+It follows that \(t\left(G\right)\) is an integer.
+\end{remark}
+
+\begin{lemma}
+\(t\left(G\right)=\frac{1}{n}\lambda_{1}\lambda_{2}\cdots\lambda_{p-1}\).
+\end{lemma}
+
+\begin{proof}
+In general for a matrix \(A\) with eigenvalues \(\lambda_{0},\ldots,\lambda_{p-1}\) we have that,
+\[
+\sum_{k=0}^{n-1}\frac{\lambda_{0}\lambda_{1}\lambda_{2}\cdots\lambda_{n-1}%
+}{\lambda_{k}}=\sum_{i=0}^{n-1}\det\hat{A}_{ii}.
+\]
+In our case, \(\lambda_{0}=0\) and the right sum is the sum of \(p\) of the same entries, so the result follows.
+\end{proof}
+
+\begin{remark}
+It follows that \(t\left(G\right)\geq0\).
+\end{remark}
+
+Recall that a spanning tree of \(G\) is a subgraph containing all of the vertices of \(G\) and is a tree.
+
+\begin{theorem}
+(Matrix Tree Theorem) The number \(t\left(  G\right)  \) is equal to the number of spanning trees of \(G\).
+\end{theorem}
+
+\begin{proof}
+Omitted, for now.
+\end{proof}
+
+%
+\begin{corollary}
+\(\lambda_{1}\neq0\) if and only if \(G\) is connected.
+\end{corollary}
+
+\begin{proof}
+\(\lambda_{1}=0\) if and only if \(t\left(G\right)=0\) since \(t\left(G\right)\) is the product of the eigenvalues \(\lambda_{1}\lambda_{2}\cdots\lambda_{n-1}\) and \(\lambda_{1}\) is the minimal eigenvalue after \(\lambda_{0}\).
+But \(t\left(G\right)=0\) means that there are no spanning trees, so \(G\) is not connected.
+\end{proof}
+
+Now we can consider the different components.
+
+\begin{definition}
+The disjoint union of two graphs \(G=G_{1}\sqcup G_{2}\) is the graph gotten by taking \(V\left(G\right)=V\left(G_{1}\right)\sqcup V\left(G_{2}\right)\) and \(E\left(G\right)=E\left(G_{1}\right)\sqcup E\left(G_{2}\right)\) where, \(\sqcup\) is the disjoint union of sets.
+\end{definition}
+
+It is not hard to see that if we number the vertices in \(G\) by first numbering the vertices of \(G_{1}\) and then numbering the vertices of \(G_{2}\), that the Laplacian matrix takes the form%
+\[
+L\left(  G\right)  =\left(
+\begin{array}
+[c]{cc}%
+L\left(G_{1}\right) & 0\\
+0 & L\left(G_{2}\right)
+\end{array}
+\right).
+\]
+This means that the eigenvalues of \(L\left(G\right)\) are the union of the eigenvalues of \(L\left(G_{1}\right)\) and \(L\left(G_{2}\right)\).
+This implies the following.
+
+\begin{corollary}
+If \(\lambda_{k}=0\), then there are at least \(k+1\) connected components of \(G\).
+\end{corollary}
+
+\begin{proof}
+Induct on \(k\).
+We already know this is true for \(k=1\).
+Suppose \(\lambda_{k}=0\).
+We know there must be at least \(k\) components, since \(\lambda_{k}=0\) implies \(\lambda_{k-1}=0\).
+We can then write the matrix \(L\left(G\right)\) in the block diagonal form with \(L\left(G_{i}\right)\) along the diagonal for some graphs \(G_{i}\).
+Since \(\lambda_{k}=0\), one of these graphs must have \(\lambda_{1}\left(G_{i}\right)=0\).
+But that means that there is another connected component, completing the induction.
+\end{proof}

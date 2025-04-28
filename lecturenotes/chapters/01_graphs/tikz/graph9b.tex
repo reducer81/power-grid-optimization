@@ -1,0 +1,51 @@
+\pgfdeclarelayer{background layer}
+\pgfdeclarelayer{foreground layer}
+\pgfsetlayers{background layer,main,foreground layer}
+\begin{tikzpicture}[
+  nodestyle/.style={%
+    draw, shape=circle, fill=white,
+    node font = \small,
+    blur shadow={shadow blur steps=5}}
+]
+  \node [nodestyle] (1) at (0,0) {1};
+  \node [nodestyle,fill=red!30] (2) at ($(1) + (20:2cm)$) {2};
+  \node [nodestyle] (3) at ($(1) + (-60:1.5cm)$) {3};
+  \node [nodestyle,fill=red!30] (4) at ($(3) + (1.5cm, 0)$) {4};
+  \node [nodestyle] (5) at ($(2) + (-30:1.5cm)$) {5};
+  \node [nodestyle] (6) at ($(5) + (-10:1.5cm)$) {6};
+  \node [nodestyle] (7) at ($(6) + (45:1.5cm)$) {7};
+  \node [nodestyle] (8) at ($(6) + (-45:1.5cm)$) {8};
+  \node [nodestyle] (9) at ($(6) + (2cm,0)$) {9};
+
+  \graph[edges=semithick]{
+    (1) -- {(2),(3)};
+    (2) -- (4);
+    (2) -- (5);
+    (3) -- (4);
+    (4) -- (5);
+    (5) -- [red] (6);
+    (6) -- {(7),(8),(9)};
+    (7) -- (9);
+    (8) -- (9);
+  };
+
+  \coordinate[above=2mm] (labelpos) at ($(5)!0.5!(6)$);
+  \node (label) at (labelpos) {$e_1$};
+  \draw [{Stealth[round]}-] (label) -- ++ (110:1cm) node [above] {Cut Edge};
+
+  \begin{pgfonlayer}{background layer}
+    \draw[dashed] plot [smooth cycle] coordinates {
+      ($(2.north)+(90:3mm)$)
+      ($(2.east)+(45:4mm)$)
+      ($(4.north east)+(40:3mm)$)
+      ($(4.south east)+(-45:3mm)$)
+      ($(4.south west)+(-135:3mm)$)
+      ($(2.west) + (180:3mm)$)
+    };
+  \end{pgfonlayer}
+
+  \draw [{Stealth[round]}-]
+  ($(4.south east)+(-45:3.1mm)$)
+  -- ++ (-10:5mm) node [right]{Vertex Cut};
+
+\end{tikzpicture}
