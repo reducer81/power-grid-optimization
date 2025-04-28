@@ -1,0 +1,142 @@
+
+
+\section{Some basics in Optimization}
+In many aspect of computational and applied mathematics an optimization problem is solved. In power grid operation one is interested in optimal operation, optimal control, optimal network planning and so on.
+A general type of optimization problem with only linear equality constraints can be written in the following form
+
+\begin{align}
+\min_x f(x)\\
+\mbox{s.t. }Ax=b 
+\end{align}
+
+This problem, the problem we are interested in is called the primal problem. The langrangian for this problem is given by 
+
+\[L(x,\lambda)=f(x)+\lambda^T(Ax-b)\]
+
+With the help of this langrangian function $L$ we can write an equivalent optimization problem, which has typically the same solution:
+
+\[\min_x \max_{\lambda}  L(x,\lambda)\]
+
+If $Ax-b$ is not equal to $0$ then the maximization over $\lambda$ will result in $\infty$. Therefore if we are interested in a minimum over $x$ we do want the constraint to be satisfied and the problem is equivalent to the primal problem and still called the primal problem. Typically in this notation it is called the primal problem
+
+The dual problem is then given by
+\[\max_{\lambda} \min_{x}  L(x,\lambda)\]
+and under certain circumstances the primal and dual problems have the same solution. 
+
+Furthermore we see in this formulation that a necessary but not sufficient condition for an optimizer of the primal problem is that the derivative of the Lagrange function with respect to $x$ as well as with respect to $\lambda$ have to be zero:
+
+\begin{align}
+\nabla_xL=\nabla_xf(x)+A^T\lambda=0\\
+\nabla_{\lambda}L=Ax-b=0
+\end{align}
+This conditions are called the KKT conditions.
+
+\subsection{Augmented Lagrangian}
+
+Assuming we are interested in the above mentioned min max problem, but we want to find the solution by an iteration over $\lambda$ where in each step we want to find a new $\lambda$ that is not too far away from the old $\lambda$. We could do this by solving a series of problems of the following form:
+
+\[\min_{x} (\max_{\lambda} f(x)+\lambda^T(Ax-b)-\frac{1}{2\rho}\|\lambda-\bar{\lambda}\|^2)\]
+
+
+We augmented the Lagrangian function by a panelty term $\frac{1}{2\rho}\|\lambda-\bar{\lambda}\|^2)$ penalizing $\lambda$s that are too far away from some given $\bar{\lambda}$. The inner maximization over $\lambda$ can now be explicitely computed and yields $\lambda=\bar{\lambda}+\rho(Ax-b)$ which leads by plugging this into the augmented lagrangian to the minimization problem over $x$:
+
+\[\min_x f(x)+\bar{\lambda}^T(Ax-b)+\frac{\rho}{2}\|Ax-b\|^2\]
+This is the so called augmented lagrangian minimization where we call the augmented Lagrangian the function $L(x,\bar{\lambda},\rho)=f(x)+\bar{\lambda}^T(Ax-b)+\frac{\rho}{2}\|Ax-b\|^2$. This minimization problem can be solved iteratively by the method of multipliers:
+
+\begin{align}
+x_k&=\argmin_x \;L(x,\lambda_{k-1},\rho)\\
+\lambda_k&=\lambda_{k-1}+\rho(Ax_k-b)
+\end{align}
+Often the parameter $\rho$ is changed during the iteration process as well.
+The variable $\lambda$  is an estimate of the Lagrange multiplier, and the accuracy of this estimate improves at every step. The major advantage of the method is, that it is not necessary to take $\rho\rightarrow \infty$ in order to solve the original constrained problem. Instead, because of the presence of the Lagrange multiplier term, $\rho$  can stay much smaller, thus avoiding ill-conditioning. Nevertheless, it is common in practical implementations to project multipliers estimates in a large bounded set (safeguards), avoiding numerical instabilities and leading to a strong theoretical convergence.
+
+\subsection{Alternating direction method of multipliers}
+The alternating direction method of multipliers (ADMM) is a variant of the augmented Lagrangian scheme that uses partial updates for the dual variables. This method is often applied to solve problems such as
+
+\begin{equation}\min _{x}f(x)+g(x).\label{eq:ex111}
+\end{equation}
+This is equivalent to the constrained problem
+
+\[\min _{{x,y}}f(x)+g(y),\quad {\text{subject to}}\quad x=y\]
+Though this change may seem trivial, the problem can now be attacked using methods of constrained optimization (in particular, the augmented Lagrangian method), and the objective function is separable in x and y. The dual update requires solving a proximity function in x and y at the same time; the ADMM technique allows this problem to be solved approximately by first solving for x with y fixed, and then solving for y with x fixed. Rather than iterate until convergence (like the Jacobi method), the algorithm proceeds directly to updating the dual variable and then repeating the process. This is not equivalent to the exact minimization, but surprisingly, it can still be shown that this method converges to the right answer (under some assumptions). Because of this approximation, the algorithm is distinct from the pure augmented Lagrangian method.
+
+\[\min _{{x,y}}f(x)+g(y),\quad {\text{subject to}}\quad Ax+By=b\]
+The augmented Lagrangian for this is given by
+
+\[L(x,y,\lambda,\rho)=f_1(x)+f_2(y)+\lambda^T(Ax+Bz-b)+\frac{\rho}{2}\|Ax+By-b\|^2\]
+
+and the method of multipliers reads
+
+
+\begin{align}
+(x_k,y_k)&=\argmin_{x,y} \;L(x,y,\lambda_{k-1},\rho)\\
+\lambda_k&=\lambda_{k-1}+\rho(Ax_k+By_k-b)
+\end{align}
+and if we split the first step into two we get
+
+\begin{align}
+x_k&=\argmin_{x} \;L(x,y_{k-1},\lambda_{k-1},\rho)\\
+y_k&=\argmin_{y} \;L(x_k,y,\lambda_{k-1},\rho)\\
+\lambda_k&=\lambda_{k-1}+\rho(Ax_k+By_k-b)
+\end{align}
+
+Going back to our original example in which we wanted to minimize a sum of two functions \eqref{eq:ex111} the methods reads
+
+\begin{align}
+x_k&=\argmin_{x} \;f(x)+\lambda_{k-1}^T(x-y_{k-1})+\frac{\rho}{2}\|x-y_{k-1}\|^2\\
+y_k&=\argmin_{y} g(y)+\lambda_{k-1}^T(x_k-y)+\frac{\rho}{2}\|x_k-y\|^2\\
+\lambda_k&=\lambda_{k-1}+\rho(x_k-y_k)
+\end{align}
+
+What we achieve is that we decouple the minimization over $f$ and $g$ into two steps. 
+%\section{Examples}
+%One can take this idea even further to tackle a minimization problem of the form 
+%
+%\[\min_x \sum_{i=1}^n f_i(x)\] by introducing a new variable $z_i$ for each function $f_i$ and rewriting the problem in the from 
+%
+%\[\min _{x,z}\sum_{i=1}^n f_i(z^i),\quad {\text{subject to}}\quad z^i=x\]
+%and then using the method of multiplier Ansatz for $n+1$ variables. 
+%
+%This results in the following steps
+%
+%\begin{align}
+%x_k&=\argmin_x \sum_j f_j(z^j_{k-1})+\sum \lambda_{k-1}^j(z^j_{k-1}-x)+\frac{\rho}{2} \sum_j \|z^j_{k-1}-x\|^2\\
+%z_k^i&=\argmin_{z^i} \sum f_j(z^j)+\sum_j \lambda_{k-1}^j(z^j-x_k)+\frac{\rho}{2}\sum_j \|z^j-x_k\|^2\\
+%\lambda^i_k&=\lambda^i_{k-1}+\rho(z_k^i-x_k)
+%\end{align}
+%
+%which results in
+%
+%\begin{align}
+%x_k&=\frac{\sum_j \lambda^j_{k-1}+\rho\sum_j z_{k-1}^j}{n\rho}\\
+%z_k^i&=\argmin_{z^i}  f_i(z_i)+\lambda_{k-1}^i(z^i-x_k)+\frac{\rho}{2} \|z^i-x_k\|^2\quad \forall i=1,\dots n\\
+%\lambda^i_k=\lambda^i_{k-1}+\rho(z_k^i-x_k)
+%\end{align}
+%so that the minimization is completely decoupled. The update in $x$ is trivial and the update in the individual $z^i$ decouple the different functions $f_i$. Another setting in which we see a similar decoupling is for the following problem
+%
+%\[\min_{z} f(\sum_i z^i) \quad \mbox{subject to } h_i(z^i)=0\]
+%
+%%Here we introduce $x=\sum_i z^i$ then the problem reads
+%\[\min_{x,z} f(x) \quad \mbox{subject to  } h_i(z^i)=0 \mbox{ and }\sum_i z^i =x\]
+%
+%and with the methods of multiplier we arrive at
+%
+%\begin{align*}
+%x_k&=\argmin_x  f(x)+\sum_j \lambda_{k-1}^jh_j(z^i_{k-1})+ \mu(\sum_jz^j_{k-1}-x)+\frac{\rho}{2}\|\sum_j z^j_{k-1}-x\|^2+\frac{\rho}{2} \sum_j \|h_j(z^i_{k-1})\|^2\\
+%z_k^i&=\argmin_{z^i}  f(x_k)+\sum_j \lambda_{k-1}^jh_j(z^j)+ \mu(\sum_jz^j-x_k)+\frac{\rho}{2}\|\sum_j z^j-x_k\|^2+\frac{\rho}{2} \sum_j \|h_j(z^j)\|^2\\
+%\lambda^i_k&=\lambda^i_{k-1}+\rho h_i(z^i_k)\\
+%\mu_{k}&=\mu_{k-1}+\rho(\sum_j z^j_k -x_k)
+%\end{align*}
+%
+%which again decouples 
+%\begin{subequations}
+%\label{ADMMmodel}
+%\begin{align}
+%x_k&=\argmin_x  f(x)- \mu x+\frac{\rho}{2}\|\sum_j z^j_{k-1}-x\|^2\\
+%z_k^i&=\argmin_{z^i}   \lambda_{k-1}^ih_i(z^i)+ \mu z_i+\frac{\rho}{2}\|\sum_j z^j-x\|^2+\frac{\rho}{2} \|h_i(z^i)\|^2\\
+%\lambda^i_k&=\lambda^i_{k-1}+\rho h_i(z_k^i)\\
+%\mu_{k}&=\mu_{k-1}+\rho(\sum_j z_k^j -x)
+%\end{align}
+%\end{subequations}
+%
+%In the update of $x$ we have only $f$ and if $f$ is a quadratic function, which does happen in practice then the $x$ update is straightforward. Th update of $z_i$ however depends in this form on all other $z_j$s. As we will see later there are applications where this is not necessarily wanted. Therefore we remove the term $\frac{\rho}{2}\|\sum z_i-x\|^2$ from the update of the $z^i$. Then each update of $z^i$ is independent of all the other $z^j$s. 

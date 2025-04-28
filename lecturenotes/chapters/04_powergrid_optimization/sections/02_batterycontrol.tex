@@ -1,0 +1,280 @@
+\section{Examples in the power grid}
+
+We are interested in a model in which we have several households connected on a power grid. Therefore we assume that the power flow equation hold. Furthermore we assume to have a battery in each household. The battery has a state of charge and changes over time proportional to the used power or given power. Therefore the common model is a simple dynamical system. The power flow equation are a constraint and we could optimize for several different objective functions.
+
+
+\subsection{Battery Control on a Microgrid}
+
+
+In a simplified model we assume that each household has a battery as well as a power generation (typically that would be a solar panel) and power consumption. We can decide when to charge or discharge the battery and how much in each time step. 
+
+We assume to have $M$ many household and in each household we have a load profile $\ell_i(t)$ the amount of power used and the generation profile $g_i(t)$ at each household. Furthermore the state of charge of the battery  $x_i(t)$ is given by
+
+\[\dot{x}_i(t)=u_i(t), \quad x_i(0)=x_i^0\]
+where $u_i(t)$ is the power the battery gives or takes and $x_i^0$ the initial state.
+
+The power each node uses from the grid is then given by $P_i(t)=\ell_i(t)-g_i(t)+u_i(t)$.
+The optimization problem is then written as
+\begin{subequations}
+\begin{align}
+\min \;J(P,Q,V,u,x)\\
+\mbox{subject to } &\dot{x}_i(t)=u_i(t), \\ 
+&x_i(0)=x_i^0\\
+&\mbox{Power Flow}\\
+&P_i(t)=\ell_i(t)-g_i(t)+u_i(t)
+\end{align}
+\label{batterycontrol}
+\end{subequations}
+
+We start by looking into this problem without the power flow constraint and as objective function $J$ we are interested in making the average over $P_i$ namely $\frac{1}{M}\sum_i P_i$ as close as possible to a constant value $\xi$ at each point in time. The resulting optimization problem can be written as
+
+\begin{align}
+\min \int_t\|\xi-\frac{1}{M}\sum_i P_i(t)\|^2\\
+\mbox{subject to } \dot{x}_i(t)=u_i(t), \\ 
+x_i(0)=x_i^0\\
+P_i(t)=\ell_i(t)-g_i(t)+u_i(t)\\
+\mbox{box constraints on $P_i$ and $u_i$ and $x_i$}
+\end{align}
+
+In this optimization problem $\ell_i(t)$ and $g_i(t)$ are given or at least a prediction of them are given. Once $u_i(t)$ is fixed $P_i$ as well as $x_i$ are determined. This means we are interested in finding an optimal control function $u_i$ on how to operate the batteries in each household, such that the average power consumption is constant over time. 
+
+We do have a multi-agent system in the sense that at each household/agent we have a simple ordinary equation namely $\dot{x}(t)=u(t)$. Interesting for the objective function is however only the power consumed $P_i(t)$ which can also be computed directly from the control. The reason we need to compute the state of the battery is that the battery has certain bounds. Namely, if the battery is fully charged it can no longer store excess energy and similarly if the battery is empty it can no longer provide energy. We want the average power, here average over all households in the system, which we call microgrid to be as close as possible to a reference value $\xi$. This reference value could vary over time, but we choose to pick one that is constant over time right now. It will typically be picked as the average over all household and over some given time horizon. 
+
+This problem is a continuous optimization problem which can be seen from the fact that the objective function is an integral, there is a constraint which is an ordinary differential equation and in particular the optimization variable is a function and therefore an infinite-dimensional object. As a computing device can not handle such a thing we will discretize this problem into its discretized optimization problem
+
+\begin{align}
+\min \sum_k \|\xi-\frac{1}{M}\sum_i P^k_i\|^2\\
+\mbox{subject to } x_i^{k+1}=x_i^k+\Delta t u^k_i, \\ 
+x_i^0=\mbox{given}\\
+P^k_i=\ell^k_i-g^k_i+u^k_i\\
+\mbox{box constraints on $P^k_i$ and $u^k_i$ and $x^k_i$}
+\end{align}
+
+This objective function is a quadratic function in the optimization variables $P,u,x$ and the equality constraints as well as the simple inequality constraints (bounds) are linear. If we consider this problem for only one time step we get
+
+ \begin{align}
+\min  \|\xi-\frac{1}{M}\sum_i P_i\|^2\\
+\mbox{subject to } h_i(P_i)=0\\
+g_i(P_i)\leq 0\end{align}
+
+If we ignore the inequality constraints for now and introduce $x=\frac{1}{M}\sum_i P_i$ we can use ADMM:
+
+\begin{subequations}
+\label{ADMMmodelPower}
+\begin{align}
+x^k&=\argmin_x  \|\xi-x\|^2- \mu x+\frac{\rho}{2}\|\frac{1}{M}\sum_j P_j^{k-1}-x\|^2\\
+P_i^k&=\argmin_{z^i}   \lambda_{k-1}^ih_i(P_i)+\frac{\rho}{2} \|h_i(P_i)\|^2\\
+\lambda^i_k&=\lambda^i_{k-1}+\rho h_i(Pi^k)\\
+\mu_{k}&=\mu_{k-1}+\rho(\sum_j P_j^k -x)
+\end{align}
+\end{subequations}
+
+Each step is relatively easy to solve, as the update of $x$ can be directly computed. It is just a quadratic function and we know how to compute its minimizer. The second step is typically also easy, as the $h_i$ are not to complicated and the inequality constraints could also be added here as constraints, and if $h_i$ and $g_i$ are all linear this is easy to solve. The advantage besides computation is that also we decoupled the problem. Each household can optimize independently with repsect to its own function $h_i$ and there is no need of communicating that function $g$. Only the next update given the iterate of the average has to be communicated.
+
+
+
+\subsection{Line Loss Optimization}
+
+Another optimization problem that is of interest is to minimize line loss over the entire network, subject to power flow equation some bounds and given active power demand in each node. The control parameter in this optimization problem is the reactive power.
+
+In equations this is written as
+
+\begin{align}
+\min P_L(I)=3\sum_{i=1}^n R_iL_i|I_i|^2\\
+\mbox{subject to } \mbox{Power Flow}\\
+I=YV\\
+V_{\ell}\leq |V|\leq V_u\\
+Q_i=P_i\tan(\phi_i)
+\end{align}
+In this optimization problem we assume that $P_i$ is given and some bounds on the voltage. We compute the current by multiplying the admittance with the voltage and then optimize the line loss over the entire network which is the sum over the line losses on each line. HERE $L_i$ is the length of the line and $R_i$ the resistance of that individual line. 
+
+
+\subsection{Optimal AC Power Flow}
+
+Optimal Power Flow (OPF) functionally combines the power flow with economic dispatch, that means we minimize a cost function, such as operating cost, taking into account realistic equality and inequality constraints. 
+
+We consider balanced electrical AC grids as lumped-parameter systems at steady state, which can be modeled by the triple 
+$(\mathcal{N},\mathcal{G},Y)$, where 
+$\mathcal{N}=\{1,\dots,N\}$
+ is the set of buses (nodes), 
+$\mathcal{G}\subset \mathcal{N}$ is the non-empty set of generators, and $Y=G+jB\in\mathbb{C}^{n\times n}$
+ is the bus admittance matrix. Moreover, we assume symmetric three-phase AC conditions. Every bus $\ell\in\mathcal{N}$ is described by the voltage $E_{\ell}e^{j\theta_{\ell}}\in\mathbb{C}$ and net apparent power $S_{\ell}=P_{\ell}+jQ_{\ell}\in \mathbb{C}$
+
+
+
+The power flow equations describe the steady-state behavior of an AC electrical network in terms of the voltage phasors and net apparent powers
+\begin{subequations}
+\begin{align}
+P_i&=\sum_j B_{ij}E_iE_j\sin{\theta_{ij}}+G_{ij}E_iE_j\cos{\theta_{ij}}\\
+Q_i&=\sum_j- B_{ij}E_iE_j\cos{\theta_{ij}}+G_{ij}E_iE_j\sin{\theta_{ij}}
+\end{align}
+\label{PF22}
+\end{subequations}
+where $\theta_{ij}=\theta_i-\theta_j$.
+Observe that in the power flow equations \eqref{PF22} the phase angles $\theta_{\ell}$
+ occur as pair-wise differences, therefore one bus $\ell_0\in\mathcal{N}$
+ is specified as reference (slack) bus with $\theta_{\ell_0}=0$
+w. l. o. g. we consider $\ell_0=1$
+ in the remainder. For the sake of simplicity, we assume that there is only one generator per bus . We describe the net apparent power of bus $\ell\in\mathcal{N}$ by 
+ \[S_{\ell}=P_{\ell}+jQ_{\ell}=\begin{bmatrix}
+ P_{\ell}^g-P_{\ell}^d+j(Q_{\ell}^g-Q_{\ell}^d) & \ell \in \mathcal{G}\\
+ -P_{\ell}^d-jQ_{\ell}^d & \mbox{otherwise}
+ \end{bmatrix}\]
+ 
+where $P_{\ell}^g,Q_{\ell}^g$
+ are controllable power injections for all generator nodes $\ell\in\mathcal{G}$, and $P_{\ell}^d,Q_{\ell}^d$
+ are uncontrollable power sinks or sources for all $\ell\in\mathcal{N}$.
+ 
+ Hence, we define the control input $u\in\mathbb{R}^{n_u}$, the disturbance $d\in\mathbb{R}^{n_d}$, and the state $x\in\mathbb{R}^{n_x}$ as follows
+ 
+ 
+ \begin{align}
+ u = (P_{\ell}^g, Q_{\ell}^g)_{\ell\in\mathcal{G}} \in \mathbb{R}^{n_u}, n_u=2|\mathcal{G}|\\
+ d = (P_{\ell}^d, W_{\ell}^d)_{\ell\in\mathcal{N}} \in \mathbb{R}^{n_u}, n_d=2|\mathcal{N}|\\
+ x = (V_{\ell},\theta_{\ell})_{\ell\in\mathcal{N}} \in \mathbb{R}^{n_u}, n_x=2|\mathcal{N}|
+ \end{align}
+ 
+We remark that depending on the specific problem at hand, one may also consider the voltage of a bus as an additional input variable. Our choice of state and input variables allows writing the power flow equations \eqref{PF22} in terms of a system of nonlinear algebraic equations
+\[F:\mathbb{R}^{n_u}\times\mathbb{R}^{n_u}\times \mathbb{R}^{n_u}\rightarrow \mathbb{R}^{2N} F(u,d;x)=0\]
+
+where the semicolon notation emphasizes the dependency on the exogenous disturbance d. For the sake of concise notation, we introduce the so-called power-flow manifold
+\[F(d):=\{(x,u)\in\mathbb{R}^{n_x+ n_u}| F(x,u;d)=0\}\]
+ 
+describing all solutions to the power-flow equations \eqref{PF22} for a given disturbance d. Since \eqref{PF22} states $2N$
+ equality constraints and we consider $4N$
+ variables, the differentiable manifold $F(d)$
+is of dimension $2N$. As we will see later, it determines the number of degrees of freedom remaining for optimization. 
+ Besides the power flow equations \eqref{PF22} engineering requirements are usually considered in terms of box constraints as follows
+ \begin{subequations}
+ \label{box constraints}
+\begin{align}
+u\in U=\{P_{\ell}^g, Q_{\ell}^g\in \mathbb{R}^{n_u}: P_{\ell}^g\in [\underline{P}_{\ell}^g,\overline{P}_{\ell}^g], Q_{\ell}^g\in [\underline{Q}_{\ell}^g,\overline{Q}_{\ell}^g]\}\\
+x\in X=\{(E_{\ell},\theta_{\ell}\in \mathbb{R}^{n_x}: E_{\ell}\in [\underline{E}_{\ell},\overline{E}_{\ell}^u]\theta_0=0\}
+\end{align}
+ \end{subequations}
+ Actually, the constraints \eqref{box constraints} are a simplification of the true technical requirements. For example, generator curves may impose constraints that couple  $P_{\ell}^g,Q_{\ell}^g$ and $E_{\ell}$
+ at generator bus $\ell\in\mathcal{G}$; binary constraints may be imposed when shunts and/or generators can be turned on and off.
+ Additional constraints comprise limits on the line flows, which are often modeled as constraints on the magnitude of apparent power $x\in C$.
+ 
+ 
+ Typical objectives considered in OPF span from the minimization of active power generation costs via the minimization of transmission losses to suppressing overly large injections of reactive power. Frequently, the cost function $J:\mathbb{R}^{n_u}\rightarrow \mathbb{R}$
+ is assumed to be convex (often quadratic) in the argument $u$. Summarizing all of the above, the single-stage AC OPF problem is given by
+ 
+ \begin{subequations}
+ \label{OPF}
+ \begin{align}
+ \min_{(x,u)} J(u)\\
+ \mbox{subject to }\\
+ (x,u)\in F(d)\\
+ u\in U\\
+ x\in X\\
+ x\in C
+ \end{align}
+ \end{subequations}
+ The main challenges in solving the AC OPF as given above are: the non-convexity of the sets $F(d)$ and 
+$C$, the fact that the objective is not strictly convex in $x$ and $u$, and the fact that realistic grid models can easily comprise several thousand nodes.
+Note that there exist powerful software packages solving \eqref{OPF} such as MATPOWER (which is an open-source MATLAB toolbox specific for OPF), JUMP  (which is an open-source JULIA NLP package) or CASADI (which is an open-source NLP package available for MATLAB and PYTHON). 
+
+
+%In general, one can distinguish the following main approaches to solving \eqref{OPF}:
+%
+%\begin{itemize}
+%\item 
+%tackling it as a generic NLP 
+%
+%\item
+%alternating solution of the power-flow equations  and minimizing a quadratic objective 
+%
+%\item 
+%polynomial reformulation and semi-definite relaxation of the power-flow equations 
+%
+%\item 
+%affine approximation of the sets $F(d)$ and $C$.
+%\end{itemize}
+%and Dual Optimization}
+%\section{ADMM}
+%
+%ADMM stands for Alternating direction method of multipliers. We explain the basic idea by looking at the following example optimization problem we are interested in solving
+%
+%\begin{align}
+%\min_{x,z} F(x,x):=f_1(x)+f_2(z)\\
+%\mbox{subject to}\quad Ax+Bz=b
+%\end{align}
+%where the two functions $f_1$ and $f_2$ are both convex. The dual problem to this problem is given by
+%
+%\[\max_{\lambda} \min_{x,z} f_1(x)+f_2(z)+\lambda^T(Ax+Bz-b)\]
+%The minimizer of $f_1(x)+f_2(z)+\lambda^T(Ax+Bz-b)$ with respect to $x$ and $z$ is given by the unique solution to the following two equations in $x$ and $z$.
+%
+%\begin{align*}
+%\nabla_x f_1(x)+A^T\lambda=0\\
+%\nabla_z f_2(z)+B^T\lambda=0
+%\end{align*}
+%
+%This two equations have a unique solution for $x$ and $z$ and the dual problem can then be written as a minimization of a function depending on $\lambda$ in the form
+%
+%\[\min f_1^*(-A^T\lambda)+f_2^*(-B^T\lambda)+\lambda^Tb,\]
+%where we plug the solution to the equations back into the objective function of the minimization problem. The proximal point method for solving this problem is given by an iteration starting with a value $\lambda^0$ and iterating through the following optimization problem
+%
+%\begin{equation}\lambda^{t+1}=\argmin_{\lambda} \left \{f_1^*(-A^T\lambda)+f_2^*(-B^T\lambda)+\lambda^Tb+\frac{1}{2\rho} \|\lambda-\lambda^t\|^2\right \}\label{lambda1}
+%\end{equation}
+%
+%This however is equivalent to an iteration where we compute $(x^t,z^t)$ as well as then from them $\lambda^t$ in each iteration by 
+%
+%\begin{align*}
+%(x^{t+1},z^{t+1})=\argmin \left\{f_1(x)+f_2(x)+\frac{\rho}{2}\|Ax+Bz-b+\frac{1}{\rho}\lambda^t\|^2_2\right\}\\
+%\lambda^{t+1}=\lambda^t+\rho (Ax^{t+1}+Bz^{t+1}-b)
+%\end{align*} 
+%
+%In the following we will describe why that is true. In equation \eqref{lambda1} $\lambda^{t+1}$ satisfies
+%
+%\[-A\nabla f_1^*(-A^T\lambda^{t+1})-B\nabla f_2^*(-B^T\lambda^{t+1})+b+\frac{1}{\rho}(\lambda^{t+1}-\lambda^t)=0\]
+%
+%which is equivalent to 
+%\[\lambda^{t+1}=\lambda^t+\rho(Ax^{t+1}+Bz^{t+1}-b)\]
+%
+%where 
+%\begin{align*}
+%x^{t+1}=\argmin_x\{(\lambda^{t+1})^TAx+f_1(x)\}\\
+%z^{t+1}=\argmin \{(\lambda^{t+1})^TBz+f_2(z)\}
+%\end{align*}
+%Using the $\lambda$ iterate the equivalence is justified. The problem of this augmented lagrangian method is that the primal update step is often expensive -- as expensive as ssolving the original problem and the minimization of $x$ and $z$ cannot be carried out separately. Rather than computing exact primal estiamte for ALM, we might minimize $x$ and $z$ sequentially via alternating minimzation 
+%
+%\begin{align*}
+%x^{t+1}=\argmin \{f_1(x)+\frac{\rho}{2}\|Ax+Bz^t-b+\frac{1}{\rho}\lambda^t\|_2^2\}\\
+%z^{t+1}=\argmin \{f_2(x)+\frac{\rho}{2}\|Ax^{t+1}+Bz-b+\frac{1}{\rho}\lambda^t\|_2^2\}\\
+%\lambda^{t+1}=\lambda+\rho(Ax^{t+1}+Bz^{t+1}-b)
+%\end{align*}
+%
+%This is called the alternating direction method of multipliers (ADMM). This is useful of updaeting $x^t$ and updating $z^t$ are both expensive. It blendss the benefitss of dual decompositon and augmented Lagrangian method. The roles of $x$ and $z$ are almost symmetric, but not quite. 
+%
+%\begin{example}
+%%subsection{Consensus Optimization}
+%
+%We consider the following optimization problem
+%
+%\[\min_x \sum_{i=1}^Nf_i(x)\]
+%This can be rewritten as
+%
+%\begin{align*}
+%\min \sum_{i=1}^Nf_i(x_i)\\
+%\mbox{s.t.} x_i=z
+%\end{align*}
+%
+%With $x=\begin{bmatrix}x_1\\\vdots\\x_n\end{bmatrix}$ we use now ADMM to get 
+%
+%\begin{align*}
+%x^{t+1}=\argmin \{\sum_{i=1}^Nf_i(x_i)+\frac{\rho}{2}\sum_{i=1}^N\|x_i^t-z^t+\frac{1}{\rho}\lambda_i^t\|_2^2\}\\
+%z^{t+1}=\argmin \{\frac{\rho}{2}\sum_{i=1}^N\|x_i^{t+1}-z+\frac{1}{\rho}\lambda_i^t\|_2^2\}\\
+%\lambda_i^{t+1}=\lambda_i^t+\rho(x_i^{t+1}-z^{t+1})_2^2\}
+%\end{align*}
+%\end{example}
+%\begin{theorem}
+%Suppose $f_1$ and $f_2$ are closed convex functions, and $\gamma$ is any constant obeying $\gamma\geq 2\|\lambda^2\|_2$. Then
+%
+%\begin{align}
+%F(x^{(t)},x^{(t)}) -F^{opt}\leq \frac{\|z^0-z^*\|_{\rho B^TB}+\frac{(\gamma+\|\lambda^0\|_2)^2}{\rho}}{2(t+1)}\\
+%\|Ax^{(t)}+Bz^{(t)}-b\|_2\leq \frac{\|z^0-z^*\|_{\rho B^TB}+\frac{(\gamma+\|\lambda^0\|_2)^2}{\rho}}{\gamma(t+1)}
+%\end{align}
+%
+%where $x^{(t)}:=\frac{1}{t+1}\sum_{k=1}^{t+1}x^k$, $z^{(t)}:=\frac{1}{t+1}\sum_{k=1}^{t+1}z^k$ and for and $C$, $\|z\|_C^2:=z^TCz$
+%\end{theorem}
