@@ -1,0 +1,43 @@
+
+%
+\section{Multi-agent Systems}
+
+
+We will give a general mathematical model of a multi-agent system based on continuous time dynamical systems. 
+\begin{definition} A general nonlinear multi agent system of order one over a graph $G=(N,E)$ is defined as an ordinary differential equation of the form
+\[ \dot{x}_i= f(x_i,\bigcup_{j\in N(i)}x_j,u_i)\forall i\in N\] for a given input function $u_i$ for each nodes $i$.
+\end{definition}
+This system has an input function $u_i$ and if we define $u_i$ to be a function of $x=[x_1,\dots,x_N]$ again we call this feedback control. In our view of multiagent systems we can do two different type of controls, either $u_i$ only depends on  $x_i$ (decentralized control), only on the state at the node the input is acting or on 
+$x_i$ and $x_j$ for all $j\in N(i)$ (distributed control) on the state the input is acting and on the neighbouring states. The control objective depends on the application, and are numerous. One of the most well-studied control problems is the consensus problem, where the control objective of the agents is to reach a common state, i.e., 
+\[ \lim_{t\rightarrow \infty} |x_i(t)-x_j(t)|=0, \mbox{ for all }i,j.\]
+ The consensus problem has been studies by, e.g., by Olfati-Saber and Murray (2004), Ren and Beard (2005) and Ren et al. (2007). The consensus problem may be solved by a linear control protocol. Assuming that the agent dynamics are linear single integrators
+ \[\dot{x}_i=u_i\]
+ the controller, a distributed control depending on all the neighbouring states as well as the state at the nodes itself
+ \[u_i=\gamma_i \sum_{j\in N(i)} \alpha_{ij}(x_j-x_i) \]
+where $\gamma_i$ and $\alpha_{ij}$ are positive constants, satisfies $\lim_{t\rightarrow \infty}|x_i(t)-x_j(t)|=0 $ $\forall i,j\in G$ if $G$ is connected, see e.g. Olfati-Saber and Murray (2004).
+
+
+
+
+
+Using some of the graph matrices that were introduced in the previous chapter we will now define a multi-agent system on a simple undirected, weighted and connected graph $G$. We declare some nodes to be the leaders and others to be followers. Let $m\in \mathbb{N},m>n$ be the number of leaders, $V_L=\{v_1,v_2\dots,v_M\} \subset V$ the set of leafers and $V_F=V\backslash V_L$ the set of followers. Defining $M\in \mathbb{R}^{n\times m}$ with 
+
+\begin{equation}
+M_{ij}=\left\{\begin{matrix}
+1, & \mbox{if } i=v_j,\\
+0,& \mbox{otherwise},
+\end{matrix}\right.
+\end{equation}
+ the system 
+ \begin{subequations}
+ \label{mas}
+ \begin{eqnarray}
+ \dot{x}(t)=Lx(t)+Mu(t),\\
+ y(t)=W^{1/2}R^Tx(t)
+ \end{eqnarray}
+ \end{subequations}
+ is a leader-follower linearly diffusively coupled multi-agent system, where the agents have single-integrator dynamics, with input $u(t)\in \mathbb{R}^m$, state $x(t)\in \mathbb{R}^n$ and output $y(t)\in \mathbb{R}^m$. The matrix $R$ is the incidence matrix of the underlying graph and $W$ is the edge-weight matrix with edge weights on its diagonal and $L$ the Laplacian matrix. 
+ 
+ The input $u(t)$  represents external input to leaders, the components of the state $x(t)$ are the values of the agents in the nodes, and the output $y(t)$ are weighted differences of the agents values across edges The proerty of interest for multi-agent systems is reaching consensus, which says that $x_i(t)-x_j(t)\rightarrow 0$, when $u\equiv 0$, for all $i,j,\in V$ and all initial values. For system \eqref{mas}, this is equivalent to $y(t)\rightarrow 0$, because the multi-agent system is defined on a connected graph. 
+
+

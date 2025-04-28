@@ -1,0 +1,134 @@
+
+
+
+\section{Dynamical Systems}
+
+Before we understand multi-agent systems we need to dive a little bit into the theory of dynamical systems. Multi-agent systems consist of several coupled sub-systems, so called agents. Both the dynamics of the agents, as well as the coupling between the agents can take many different forms. The dynamic however is described by a dynamical system. 
+
+We will consider dynamical systems in continuous and discrete time.
+
+
+\subsection{Continuous time systems}
+
+Typically such systems are described by ordinary differential equations.
+\begin{definition}
+Given $F$, a function of $t, x$, and derivatives of $x$ with respect to $t$. Then an equation of the form
+
+\[F\left(t,x,x',\ldots ,x^{(n-1)}\right)=x^{(n)}\]
+is called an explicit ordinary differential equation of order $n$.
+
+More generally, an implicit ordinary differential equation of order $n$ takes the form:
+
+\[ F\left(t,x,x',x'',\ \ldots ,\ x^{(n)}\right)=0\]
+\end{definition}
+
+We will mostly  focus on first order explicit differential equations. First order means that we only consider the first derivative. Then an ODE reduces to the form
+
+\[x'(t)=f(t,x).\]
+
+
+In applications we are often interested in a quantity $y(t)$ that can be computed from a state $x(t)$, which is the solution of a differential equation. This can be written as $y(t)=h(x(t),t)$. And furthermore is it sometimes possible to influence the dynamical behaviour of $x(t)$ with a so called control function $u(t)$ meaning that $x'(t)=f(t,x(t),u(t)$.
+This together leads to a dynamical system of the form:
+\begin{subequations}
+\label{nonsys}
+\begin{align}
+\dot{x}(t)&=f(t,x(t),u(t)),\\
+y(t)&=h(x(t),t).
+\end{align}
+\end{subequations}
+
+
+Assume without loss of generality that $x = 0$ is an equilibrium point of \eqref{nonsys}
+\begin{definition}{(Khalil (2002))} The equilibrium point $x_0 = 0$ of \eqref{nonsys} is 
+\begin{itemize}
+\item  stable if for every $\epsilon >0$, there exists $\delta >0$ such that
+\[\|x(0)\|\leq \delta \Rightarrow \{x(t)\|\leq \epsilon \forall t\geq 0\]
+\item  unstable if it is not stable
+\item asymptotically stable if it is stable and $\delta$ can be chosen such that
+\[\|x(0)\|< \delta  \Rightarrow \lim_{t \rightarrow \infty} \|x(t)\|=0\]
+\end{itemize}
+\end{definition}
+
+\begin{theorem}{ (Khalil (2002))} Let $x=0$ be an equilibrium point for \eqref{nonsys} and $D\subset R^n$ be a domain containing $0$. Let $ V : D \rightarrow R$ be a continuously differentiable function such that
+\begin{eqnarray}
+ V(0)=0 \mbox{ and }V(x)>0 \mbox{ in } D\backslash{0}, \\
+\dot{V}(x)\leq 0 \mbox{ in } D
+\end{eqnarray}
+for all solutions $x$. Then $x=0$ is stable. Moreover if 
+\[\dot{V}(x)< 0 \mbox{ in } D\backslash{0}\]
+then $x = 0$ is asymptotically stable.
+\end{theorem}
+If a function $V$ exists for a dynamical system, the function $V(x) $ is often referred to as a Lyapunov function. 
+
+A particular well-studied and system is the linear time-invariant system.
+A linear time-invariant system is defined as a set of linear time-invariant ordinary differential equations. A linear system can be described by
+\begin{subequations}
+\label{linsys}
+\begin{align}
+\dot{x}(t)& = A x ( t ) + B u ( t ) \\
+y(t) &= C x(t),
+\end{align}
+\end{subequations}
+where $x(t) \in \mathbb{R}^n, \;u(t) \in \mathbb{R}^m, \;y(t) \in \mathbb{R}^p$ 
+and $A\in \mathbb{R}^{n\times n},\; B\in \mathbb{R}^{n\times m}, \;C \in 
+\mathbb{R}^{p\times n}$. This system has no explicit dependency on the time, meaning the matrices $A,B$ and $C$ do not depend on time and the functions are linear in $x$ and $u$. The linear system \eqref{linsys} is indeed a special case of the nonlinear system \eqref{nonsys}. 
+
+In systems theory we are often interested in feedback. This means the input $u(t)$ or parts of it are given by a function of the output. If $u(t)$ is given by linear state feedback $u(t) = 
+-K x(t)$, the system equation \eqref{linsys} becomes
+\begin{subequations}
+\label{feedback}
+\begin{align}\dot{x}(t) &= (A -BK)x(t)
+\\ y(t) &= C x(t)
+.\end{align}
+\end{subequations}
+
+
+State feedback is very powerful as we can achieve a lot with it, however it is in reality very hard to know the entire state of the system.
+
+\
+
+\begin{theorem}
+The solution of \eqref{feedback}, starting at $x(0)=x_0$ is given by $x(t) = e^{(A-BK) t}x_0$,
+where
+$e^{(A-BK)t} =T^{-1}e^{Jt}T$.
+Here, the columns of $T^{-1}$ consist of the generalized eigenvectors of $( A -B K )$, i.e., $T^{-1} =
+ [e_1,...,e_{\mu_1},...,e_1,...,e_{\mu_k}]$. $e^{Jt} \in \mathbb{R}^{n\times n}$ is given by 
+ 
+ \[e^{Jt}=\begin{bmatrix} e^{J_1 t} &0 &\dots& 0 \\
+0& e^{J_2 t }& \dots & 0\\ 
+ \ldots& \ldots& \ddots& \ldots\\
+ 0 & 0 & \dots &e^{J_kt}
+ \end{bmatrix} \quad e^{J_it}=\begin{bmatrix} e^{\lambda_i t} & te^{\lambda_i t} &\dots& \frac{t^{\mu_i -1}e^{\lambda_i t}}{(\mu_i -1)!}\\
+0& e^{\lambda_i t}& \dots & \frac{t^{\mu_i -2}e^{\lambda_i t}}{(\mu_i -2)!}\\ 
+ \ldots& \ldots& \ddots& \ldots\\
+ 0 & 0 & \dots &e^{\lambda_i t}
+ \end{bmatrix}\]
+
+where $\lambda_1,\dots, \lambda_k$ are the eigenvalues of $(A -BK)$ of multiplicities $\mu_1,...,\mu_k$.
+\end{theorem}
+By the previous theorem, the stability of a linear system can be easily determined.
+\begin{corollary}
+The system \eqref{feedback} is asymptotically stable if and only if all eigenvalues of $(A-BK) $ lie in the open left half complex plane.
+\end{corollary}
+\subsection{Discrete time systems}
+
+In order to compute trajectories of the continuous time systems we would typically in lack of analytical solutions discretize the system and end up with an approximation of the system in discrete time. 
+
+
+
+On the other hands some system already operate in discrete time. The general description of a discrete time system is
+\begin{eqnarray}
+x_{k+1}=f(x_k,u_k)\\
+y_{k+1}=h(x_{k+1})
+\end{eqnarray}
+
+together with a starting vector $x_0$ and a given input sequence $u_0,\dots u_N$.
+
+As in the continuous case we can define a linear discrete time system as
+
+\begin{eqnarray}
+x_{k+1}=Ax_k Bu_k\\
+y_{k+1}=Cx_{k+1}
+\end{eqnarray}
+
+and controller design theory is a large research topic in this area as well. 

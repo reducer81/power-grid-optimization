@@ -1,0 +1,24 @@
+
+
+\section{Clustering}
+
+Given a node clustering of the graph and a multi-agent system in the form of \eqref{mas} we can define a reduced approximation of that system on a graph resulting from the node clustering. 
+
+Let $P(\pi)$ be the characteristic matrix of a partition $\pi$ of the vertex set $V$. The characteristic matrix of a partition $\pi=\{C_1,C_2,\dots,C_r\}$ is the matrix $P(\pi)\in \mathbb{R}^{n\times r}$ with 
+
+\[
+[P(\pi)]_{ij}=\left\{\begin{matrix}
+1, & \mbox{if } i\in C_j,\\
+0,& \mbox{otherwise},
+\end{matrix}\right.
+\] 
+
+The reduced order model is then given by
+
+\begin{eqnarray}
+\dot{\hat{x}}(t)= &- (P(\pi)^TP(\pi))^{-1}P(\pi)^TLP(\pi)\hat{x}(t)\\
+&+(P(\pi)^TP(\pi))^{-1}P(\pi)^TMu(t)\\
+\hat{y}(t) =& W^{1/2}R^TP(\pi)\hat{x}(t)
+\end{eqnarray}
+
+This reduced system represents a multi-agent system defined on a directed symmetric graph and it preserves consensus. 
